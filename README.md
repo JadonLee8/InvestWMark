@@ -1,0 +1,1 @@
+Hoping to learn more about AI, APIs, python, statistics, stock markets, crypto exchanges, and github with this python investing bot that makes stock market and cryptocurrecy predictions utilizing Markov Decision Chains. Being one of my first ambitious projects, there is still a lot that I don't know, which is exactly why I'm doing this!

@@ -8,57 +8,20 @@ class Crypto:
         self.name = name
         self.pref_source = pref_source
 
-    def get_data(self):
-        url = "https://data.messari.io/api/v1/markets/" + self.pref_source + "-" + self.ticker + "-usdt/metrics/price" \
-                                                                                                 "/time-series?start" \
-                                                                                                 "=2020-01-01&end" \
-                                                                                                 "=2020-02-01" \
-                                                                                                 "&interval=1d&format" \
-                                                                                                 "=json "
+    # start_date and end_date should be formatted as YYYY-MM-DD
+    # interval can be "1m" "5m" "15m" "30m" "1h" "1d" "1w"
+    # all params should be strings
+    def get_data(self, start_date, end_date, interval):
+        print("fetching JSON from messari.io API...")
+        url = "https://data.messari.io/api/v1/markets/" + self.pref_source + "-" + self.ticker + "-usdt/metrics/price/time-series?start=" + start_date + "&end=" + end_date + "&interval=" + interval + "&format=json"
         json_file = urllib.request.urlopen(url).read()
         # json_file = json_file[1:]
-        print(json_file)
+        print("JSON fetched for " + self.name)
         values = psiphon("values", json_file)
-        print(values)
-
-    @staticmethod
-    def test():
-        print("Methods are working!")
+        return values
 
 
 def psiphon(keyword, file):
     file_dict = json.loads(file)
     data = file_dict["data"]
     return data[keyword]
-
-# bellow is a waste of time, since the JSON module can already turn a json file into a dictionary :|
-# def psiphon(keyword, file, arr):
-#     in_word = True
-#     value = ""
-#     return_var = ""
-#     for i in file:
-#         if file[i] == '"':
-#             if in_word:
-#                 i += 1
-#                 for y in range(i, len(file)):
-#                     if file[y] == '"':
-#                         in_word = False
-#                         i += 1
-#                         break
-#                     value += y
-#                     i += 1
-#                 if value == keyword:
-#                     for y in range(i+1, len(file)):
-#                         if file[y] == '}' or file[y] == '"':
-#                             break
-#                         else:
-#                             return_var += file[y]
-#                             i += i
-#             else:
-#                 in_word = True
-#
-#     if arr:
-#         return_var =
-
-
-

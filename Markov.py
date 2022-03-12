@@ -33,6 +33,8 @@ class SimpleState:
             return False
 
 
+# TODO: make the SimpleStageSet set a list of SimpleStates instead of arrays so that they can have extra attributes.
+# This will alter pretty much everything, but it is worth it.
 class SimpleStageSet:
     def __init__(self, set_start, set_end, num_days_in_state, stonk, forgiveness, num_states):
         self.set = []
@@ -57,8 +59,11 @@ class SimpleStageSet:
 
     # precondition: set has been created using create_simple_states
     def group_simple_states(self):
+        in_group_arr = []
+        for i in range(0, len(self.set) - 1):
+            in_group_arr.append(False)
         for i in self.set:
-            if not i.is_in_group:
+            if not in_group_arr[self.set.index(i)]:
                 self.groups.append(Group(i))
                 i.is_in_group = True
                 for y in range(self.set.index(i) + 1, len(self.set) - 1):

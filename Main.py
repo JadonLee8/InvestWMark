@@ -19,8 +19,8 @@ bitcoin = Crypto("btc", "Bitcoin", "binance")
 # print(test_state_4.is_similar(test_state_5, .02))
 
 stage_set_test = SimpleStageSet("2017-11-12", "2020-11-27", 3, bitcoin, .03, 1111)
-stage_set_test.create_simple_states()
 print(stage_set_test.set)
+stage_set_test.group_simple_states()
 
 # print(bitcoin.get_data("2020-01-01", "2020-02-01", "1d", "opens"))
 #

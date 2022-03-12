@@ -23,7 +23,7 @@ print(stage_set_test.set)
 stage_set_test.group_simple_states()
 
 # print(bitcoin.get_data("2020-01-01", "2020-02-01", "1d", "opens"))
-#
+
 # ethereum = Crypto("eth", "Ethereum", "binance")
 # print(ethereum.get_data("2020-01-01", "2020-02-01", "1d", "opens"))
 #

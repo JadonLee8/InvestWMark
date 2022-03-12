@@ -74,6 +74,7 @@ class Group:
         self.avg_state = SimpleState(.03, first_state.stonk, first_state.state_start, first_state.state_end,
                                      first_state.num_days)
 
+    # a private method
     def add_set(self, simple_state):
         self.contents.append(simple_state)
         self.__avg()

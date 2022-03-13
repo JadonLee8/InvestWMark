@@ -3,17 +3,23 @@
 class SimpleState:
     # state_start is inclusive while state_end is exclusive
     # I included the num days variable bc its just too much work calculating it lol
-    def __init__(self, percent_leeway, stonk, state_start, state_end, num_days):
+    def __init__(self, percent_leeway, stonk, state_start, state_end, num_days, pre_created, data):
+        if not pre_created:
+            self.state_start = state_start
+            self.state_end = state_end
+            temp_state = stonk.get_data(state_start, state_end, "1d", "opens")
+            self.state = []
+            self.num_days = num_days
+            for i in range(0, self.num_days):
+                self.state.append(temp_state[i])
+        else:
+            self.state = data
+            self.num_days = num_days
         self.percent_leeway = percent_leeway
         self.stonk = stonk
+        self.is_in_group = False
         self.state_start = state_start
         self.state_end = state_end
-        temp_state = stonk.get_data(state_start, state_end, "1d", "opens")
-        self.state = []
-        self.num_days = num_days
-        for i in range(0, self.num_days):
-            self.state.append(temp_state[i])
-        self.is_in_group = False
 
     # forgiveness should be 0<x<1
     # intended to return True or False based on weather or not all of the values of one state fall within the minimum
@@ -47,7 +53,7 @@ class SimpleStageSet:
         self.create_simple_states()
         self.groups = []
 
-    def create_simple_states(self):
+    def create_simple_states_arr(self):
         print("Creating a set of simple states from '" + self.set_start + "' to '" + self.set_end + "'")
         bulk = self.stonk.get_data(self.set_start, self.set_end, "1d", "opens")
         temp_stage = []
@@ -56,6 +62,16 @@ class SimpleStageSet:
                 temp_stage.append(bulk[y])
             self.set.append(temp_stage)
             temp_stage = []
+
+    def create_simple_states(self):
+        print("Creating a set of simple states from '" + self.set_start + "' to '" + self.set_end + "'")
+        bulk = self.stonk.get_data(self.set_start, self.set_end, "1d", "opens")
+        temp_stage = []
+        for i in range(0, len(bulk) - 2):
+            for y in range(i, i + 3):
+                temp_stage.append(bulk[y])
+            self.set.append(SimpleState(.03, self.stonk, calculate_date(self.set_start, i), calculate_date(self.set_start, i + 3),
+                                        self.num_days_in_state, True, temp_stage))
 
     # precondition: set has been created using create_simple_states
     def group_simple_states(self):
@@ -77,7 +93,7 @@ class Group:
         self.contents = []
         self.contents.append(first_state)
         self.avg_state = SimpleState(.03, first_state.stonk, first_state.state_start, first_state.state_end,
-                                     first_state.num_days)
+                                     first_state.num_days, False, 0)
 
     # a private method
     def add_set(self, simple_state):
@@ -88,7 +104,7 @@ class Group:
         for i in range(0, len(self.avg_state.state) - 1):
             temp = 0
             for y in self.contents:
-                temp += y[i]
+                temp += y.state[i]
             self.avg_state.state[i] = temp / len(self.contents)
 
     def fits_in(self, state):

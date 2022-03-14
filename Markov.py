@@ -4,14 +4,14 @@ class SimpleState:
     # state_start is inclusive while state_end is exclusive
     # I included the num days variable bc its just too much work calculating it lol
     def __init__(self, percent_leeway, stonk, state_start, state_end, num_days, pre_created, data):
-        # if not pre_created:
-        #     self.state_start = state_start
-        #     self.state_end = state_end
-        #     self.state = stonk.get_data(state_start, state_end, "1d", "opens")
-        #     self.num_days = num_days
-        # else:
-        #     self.state = data
-        #     self.num_days = num_days
+        if not pre_created:
+            self.state_start = state_start
+            self.state_end = state_end
+            self.state = stonk.get_data(state_start, state_end, "1d", "opens")
+            self.num_days = num_days
+        else:
+            self.state = data
+            self.num_days = num_days
         self.state = data
         self.num_days = num_days
         self.percent_leeway = percent_leeway
@@ -50,6 +50,7 @@ class SimpleStageSet:
         self.num_states = num_states
         self.create_simple_states()
         self.groups = []
+        self.bulk = self.stonk.get_data(self.set_start, self.set_end, "1d", "opens")
 
     def create_simple_states_arr(self):
         print("Creating a set of simple states from '" + self.set_start + "' to '" + self.set_end + "'")
@@ -63,11 +64,11 @@ class SimpleStageSet:
 
     def create_simple_states(self):
         print("Creating a set of simple states from '" + self.set_start + "' to '" + self.set_end + "'")
-        bulk = self.stonk.get_data(self.set_start, self.set_end, "1d", "opens")
         temp_stage = []
-        for i in range(0, len(bulk) - 2):
+        self.bulk = self.stonk.get_data(self.set_start, self.set_end, "1d", "opens")
+        for i in range(0, len(self.bulk) - 2):
             for y in range(i, i + self.num_days_in_state):
-                temp_stage.append(bulk[y])
+                temp_stage.append(self.bulk[y])
             self.set.append(SimpleState(.03, self.stonk, calculate_date(self.set_start, i), calculate_date(self.set_start, i + 3),
                                         self.num_days_in_state, True, temp_stage))
             temp_stage = []
@@ -76,7 +77,7 @@ class SimpleStageSet:
     def group_simple_states(self):
         for i in self.set:
             if not i.is_in_group:
-                self.groups.append(Group(i))
+                self.groups.append(Group(i, self.set.index(i)))
                 i.is_in_group = True
                 for y in range(self.set.index(i) + 1, len(self.set) - 1):
                     if self.groups[-1].fits_in(self.set[y]):
@@ -85,16 +86,21 @@ class SimpleStageSet:
 
 
 class Group:
-    def __init__(self, first_state):
+    current_group_number = 0
+    def __init__(self, first_state, location_in_bulk):
+        Group.current_group_number += 1
+        self.group_number = Group.current_group_number
         self.contents = []
         self.contents.append(first_state)
         self.avg_state = SimpleState(.03, first_state.stonk, first_state.state_start, first_state.state_end, first_state.num_days, True, first_state.state)
+        self.location_in_bulk = location_in_bulk
+        self.future_possibilities = []
 
-    # a private method
     def add_set(self, simple_state):
         self.contents.append(simple_state)
         self.__avg()
 
+    # a private method
     def __avg(self):
         for i in range(0, len(self.avg_state.state) - 1):
             temp = 0
@@ -107,6 +113,9 @@ class Group:
             return True
         else:
             return False
+
+    def calculate_futures(self, bulk):
+        print("place holder")
 
 
 # method made obsolete by new method with one large data request

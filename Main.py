@@ -2,6 +2,7 @@ from ChartData import Crypto
 import ChartData
 from Markov import SimpleState
 from Markov import SimpleStageSet
+from Tester import tester
 
 # currently this file is pretty much just for testing as I create methods for stuff.
 bitcoin = Crypto("btc", "Bitcoin", "binance")
@@ -20,27 +21,28 @@ bitcoin = Crypto("btc", "Bitcoin", "binance")
 
 stage_set_test = SimpleStageSet("2017-11-12", "2020-11-27", 3, bitcoin, .03, 1111)
 
-for i in stage_set_test.set:
-    print(i.state)
+# for i in stage_set_test.set:
+#     print(i.state)
 stage_set_test.group_simple_states()
-for i in stage_set_test.groups:
-    print("Group: " + str(stage_set_test.groups.index(i)))
-    print(i.avg_state.state)
-    print("Contents: ")
-    for y in i.contents:
-        print(y.state)
+# for i in stage_set_test.groups:
+#     print("Group: " + str(stage_set_test.groups.index(i)))
+#     print(i.avg_state.state)
+#     print("Contents: ")
+#     for y in i.contents:
+#         print(y.state)
 stage_set_test.calc_group_futures()  # it ... worked?
-for i in stage_set_test.set:
-    print(i.state)
-    print("-")
-    print(i.future)
-for i in stage_set_test.groups:
-    print(i.future_possibilities)
+# for i in stage_set_test.set:
+#     print(i.state)
+#     print("-")
+#     print(i.future)
+# for i in stage_set_test.groups:
+#     print(i.future_possibilities)
 stage_set_test.calc_group_future_chances()
-for i in stage_set_test.groups:
-    print(i.future_chances)
+# for i in stage_set_test.groups:
+#     print(i.future_chances)
 # for i in stage_set_test.set:
 #     print(i.future)
+tester(bitcoin, stage_set_test)
 
 
 # print(bitcoin.get_data("2020-01-01", "2020-02-01", "1d", "opens"))

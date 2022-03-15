@@ -15,7 +15,6 @@ class SimpleState:
             self.state = data
             self.num_days = num_days
             self.location_in_bulk = location_in_bulk
-        self.state = data
         self.num_days = num_days
         self.percent_leeway = percent_leeway
         self.stonk = stonk

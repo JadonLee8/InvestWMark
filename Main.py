@@ -18,8 +18,10 @@ bitcoin = Crypto("btc", "Bitcoin", "binance")
 # test_state_4 = SimpleState(10, bitcoin, "2019-09-27", "2019-09-30", 3, False)
 # test_state_5 = SimpleState(10, bitcoin, "2020-01-12", "2020-01-15", 3, False)
 # print(test_state_4.is_similar(test_state_5, .02))
-
-stage_set_test = SimpleStageSet("2017-11-12", "2020-11-27", 3, bitcoin, .03, 1111)
+print("enter the date range to gather data on")
+print("Ranges larger than 2 years tend to cause HTTP Error 504: Gateway Time-out")
+print("When prompted, enter all dates in the format: YYYY-MM-DD")
+stage_set_test = SimpleStageSet(input("Enter start date"), input("Enter end date"), 3, bitcoin, .03, 1111)
 
 # for i in stage_set_test.set:
 #     print(i.state)

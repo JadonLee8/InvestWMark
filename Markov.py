@@ -105,8 +105,12 @@ class SimpleStageSet:
                 for n in self.groups:
                     if i is not n:
                         if n.fits_in(SimpleState(.03, y.stonk, y.state_start, y.state_end, y.num_days, True, y.future, y.location_in_bulk)):
-                            i.future_possibilities.append(n)
+                            i.add_future(n)
                             break
+
+    def calc_group_future_chances(self):
+        for z in self.groups:
+            z.calc_future_chances()
 
 
 class Group:
@@ -118,7 +122,8 @@ class Group:
         self.contents = []
         self.contents.append(first_state)
         self.avg_state = SimpleState(.03, first_state.stonk, first_state.state_start, first_state.state_end, first_state.num_days, True, first_state.state, first_state.location_in_bulk)
-        self.future_possibilities = []
+        self.future_possibilities = {}
+        self.future_chances = {}
 
     def add_set(self, simple_state):
         self.contents.append(simple_state)
@@ -137,6 +142,18 @@ class Group:
             return True
         else:
             return False
+
+    def add_future(self, group):
+        if group.group_number in self.future_possibilities:
+            self.future_possibilities[group.group_number] += 1
+        else:
+            self.future_possibilities.update({group.group_number: 1})
+
+    def calc_future_chances(self):
+        total = sum(self.future_possibilities.values())
+        keys = list(self.future_possibilities.keys())
+        for i in range(0, len(self.future_possibilities) - 1):
+            self.future_chances.update({keys[i]: (self.future_possibilities[keys[i]]/total)})
 
 
 # method made obsolete by new method with one large data request

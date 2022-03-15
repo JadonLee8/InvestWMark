@@ -34,6 +34,11 @@ for i in stage_set_test.set:
     print(i.state)
     print("-")
     print(i.future)
+for i in stage_set_test.groups:
+    print(i.future_possibilities)
+stage_set_test.calc_group_future_chances()
+for i in stage_set_test.groups:
+    print(i.future_chances)
 # for i in stage_set_test.set:
 #     print(i.future)
 

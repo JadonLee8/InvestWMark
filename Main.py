@@ -29,6 +29,13 @@ for i in stage_set_test.groups:
     print("Contents: ")
     for y in i.contents:
         print(y.state)
+stage_set_test.calc_group_futures()  # it ... worked?
+for i in stage_set_test.set:
+    print(i.state)
+    print("-")
+    print(i.future)
+# for i in stage_set_test.set:
+#     print(i.future)
 
 
 # print(bitcoin.get_data("2020-01-01", "2020-02-01", "1d", "opens"))

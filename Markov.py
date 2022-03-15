@@ -3,7 +3,9 @@
 class SimpleState:
     # state_start is inclusive while state_end is exclusive
     # I included the num days variable bc its just too much work calculating it lol
-    def __init__(self, percent_leeway, stonk, state_start, state_end, num_days, pre_created, data):
+    state_ID = 0
+
+    def __init__(self, percent_leeway, stonk, state_start, state_end, num_days, pre_created, data, location_in_bulk):
         if not pre_created:
             self.state_start = state_start
             self.state_end = state_end
@@ -12,6 +14,7 @@ class SimpleState:
         else:
             self.state = data
             self.num_days = num_days
+            self.location_in_bulk = location_in_bulk
         self.state = data
         self.num_days = num_days
         self.percent_leeway = percent_leeway
@@ -19,6 +22,10 @@ class SimpleState:
         self.is_in_group = False
         self.state_start = state_start
         self.state_end = state_end
+        self.future = []
+        self.group = 0
+        SimpleState.state_ID += 1
+        self.set_ID = SimpleState.state_ID
 
     # forgiveness should be 0<x<1
     # intended to return True or False based on weather or not all of the values of one state fall within the minimum
@@ -66,34 +73,51 @@ class SimpleStageSet:
         print("Creating a set of simple states from '" + self.set_start + "' to '" + self.set_end + "'")
         temp_stage = []
         self.bulk = self.stonk.get_data(self.set_start, self.set_end, "1d", "opens")
-        for i in range(0, len(self.bulk) - 2):
+        for i in range(0, len(self.bulk) - 5):
             for y in range(i, i + self.num_days_in_state):
                 temp_stage.append(self.bulk[y])
             self.set.append(SimpleState(.03, self.stonk, calculate_date(self.set_start, i), calculate_date(self.set_start, i + 3),
-                                        self.num_days_in_state, True, temp_stage))
+                                        self.num_days_in_state, True, temp_stage, i))
             temp_stage = []
 
     # precondition: set has been created using create_simple_states
     def group_simple_states(self):
         for i in self.set:
             if not i.is_in_group:
-                self.groups.append(Group(i, self.set.index(i)))
+                self.groups.append(Group(i))
                 i.is_in_group = True
                 for y in range(self.set.index(i) + 1, len(self.set) - 1):
                     if self.groups[-1].fits_in(self.set[y]):
                         self.groups[-1].add_set(self.set[y])
                         self.set[y].is_in_group = True
 
+    # precondition: group_simple_states has been called and all simple states have been grouped
+    def calc_group_futures(self):
+        print("Adding futures to simple states...")  # In the future: add the futures upon construction of simple states
+        for i in self.set:
+            for n in range(i.location_in_bulk + 3, i.location_in_bulk + 6):
+                i.future.append(self.bulk[n])
+        print("Futures have been added to all simple states.")
+        print("Checking which groups futures belong to.")
+        for i in self.groups:
+            print("Organizing futures for group " + str(self.groups.index(i)))
+            for y in i.contents:
+                for n in self.groups:
+                    if i is not n:
+                        if n.fits_in(SimpleState(.03, y.stonk, y.state_start, y.state_end, y.num_days, True, y.future, y.location_in_bulk)):
+                            i.future_possibilities.append(n)
+                            break
+
 
 class Group:
     current_group_number = 0
-    def __init__(self, first_state, location_in_bulk):
+
+    def __init__(self, first_state):
         Group.current_group_number += 1
         self.group_number = Group.current_group_number
         self.contents = []
         self.contents.append(first_state)
-        self.avg_state = SimpleState(.03, first_state.stonk, first_state.state_start, first_state.state_end, first_state.num_days, True, first_state.state)
-        self.location_in_bulk = location_in_bulk
+        self.avg_state = SimpleState(.03, first_state.stonk, first_state.state_start, first_state.state_end, first_state.num_days, True, first_state.state, first_state.location_in_bulk)
         self.future_possibilities = []
 
     def add_set(self, simple_state):
@@ -113,9 +137,6 @@ class Group:
             return True
         else:
             return False
-
-    def calculate_futures(self, bulk):
-        print("place holder")
 
 
 # method made obsolete by new method with one large data request
